@@ -105,6 +105,10 @@ config = Config
             metavar "LOG_LEVEL" <>
             help "Logging level (Debug | Info | None).  Defaults to Info"
           )
+      <*> flag False True
+          ( long "noOutput" <>
+            help "Supress writing output files (default off)"
+          )
 
 main :: IO ()
 main = execute =<< execParser opts where
@@ -123,7 +127,7 @@ main = execute =<< execParser opts where
           stream c = runResourceT $
                     void $
                     runStateT (pipeline c) initialState
-          pipeline c = runConduit $
+          pipeline c@Config{..} = runConduit $
                     (fromInput c) .|
                     toWikiRecord .|
                     logProgress 1000 .|
@@ -132,7 +136,7 @@ main = execute =<< execParser opts where
                     updateRecordsResolved .|
                     void (sequenceConduits extractors) .|
                     (required c) .|
-                    router [claimRouting c, entityMappingRouting c]
+                    if noOutput then nulC else (router [claimRouting c, entityMappingRouting c])
           required Config{..} = CC.filter $ apply (isRequired extractions)
           resolvable = CC.filterM refOrSubclass where
             refOrSubclass = \w -> if hasSubclass w then return True else hasWikiRef w

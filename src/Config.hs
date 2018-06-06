@@ -17,5 +17,6 @@ data Config = Config {
   extractions :: ExtractionSet,
   compressFlag :: Compress,
   format :: Format,
-  logLevel :: LogLevel
+  logLevel :: LogLevel,
+  noOutput :: Bool
 } deriving Show

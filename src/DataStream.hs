@@ -24,13 +24,13 @@ import Data.Text.IO as DTIO
 
 type DataStream i o m = ConduitT i o m ()
 
+nulC :: Monad m => DataStream a Void m
+nulC = awaitForever $ const nulC
+
 filterJust :: Monad m => DataStream (Maybe a) a m
-filterJust = do
-   maybeVal <- await
-   case maybeVal of
-     Nothing -> return ()
-     Just Nothing -> filterJust
-     Just (Just a) -> (yield a) >> filterJust
+filterJust = awaitForever onlyJust where
+  onlyJust Nothing = filterJust
+  onlyJust (Just a) = (yield a) >> filterJust
 
 intercalateC :: Monad m => a -> DataStream a a m
 intercalateC a = awaitForever addSuffix where

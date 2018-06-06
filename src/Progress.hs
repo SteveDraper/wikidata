@@ -34,6 +34,6 @@ logProgress period = withEffectC $ logEvery period where
     case state of
       DSState{..} ->
         if processed `mod` period == 0 && processed > 0 then
-          logFM InfoS $ logStr $ "Processed: " <> (show processed) <> ", Resolved: " <> (show resolved)
+          logFM InfoS $ logStr $ "Processed: " <> (show processed) <> ", Included: " <> (show resolved)
         else
           return ()
