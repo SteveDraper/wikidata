@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d5579665b3b14dc33da877eff5e8d1be62a8cb3752d1cd1d8180d4eee3fa74f5
+-- hash: 227abd4d17394555e21a65e8a0441ccc9e3d40e887c2d9acd84a3a6b8b9c30fb
 
 name:           wikidata
 version:        0.1.0.0
@@ -44,6 +44,7 @@ library
     , mtl
     , optparse-applicative
     , text
+    , uri-encode
   exposed-modules:
       Claim
       ClaimExtractor
@@ -59,6 +60,7 @@ library
       Filter
       Format
       JsonStream
+      Logging
       Progress
       Routable
       Routing
@@ -90,6 +92,7 @@ executable wikidata-exe
     , mtl
     , optparse-applicative
     , text
+    , uri-encode
     , wikidata
   other-modules:
       Paths_wikidata
@@ -117,6 +120,7 @@ test-suite wikidata-test
     , mtl
     , optparse-applicative
     , text
+    , uri-encode
     , wikidata
   other-modules:
       Paths_wikidata

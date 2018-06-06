@@ -5,6 +5,7 @@ import Claim
 import Extractions
 import Compress
 import Format
+import Logging
 
 data Config = Config {
   source :: InputFile,
@@ -15,5 +16,6 @@ data Config = Config {
   entityMappingsFile :: OutputFile,
   extractions :: ExtractionSet,
   compressFlag :: Compress,
-  format :: Format
+  format :: Format,
+  logLevel :: LogLevel
 } deriving Show

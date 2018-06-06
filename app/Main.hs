@@ -36,6 +36,7 @@ import Extractions
 import Progress
 import Compress
 import Format
+import Logging
 
 
 instance PrimMonad m => PrimMonad (KatipContextT m) where
@@ -98,6 +99,12 @@ config = Config
           ( long "sql" <>
             help "Format for insertion into SQL tables (default off)"
           )
+      <*> option auto
+          ( long "logLevel" <>
+            (value $ Info) <>
+            metavar "LOG_LEVEL" <>
+            help "Logging level (Debug | Info | None).  Defaults to Info"
+          )
 
 main :: IO ()
 main = execute =<< execParser opts where
@@ -106,8 +113,8 @@ main = execute =<< execParser opts where
             <> progDesc "Process Wikidata dump JSON"
             <> header "wikidata - a processor for wikidata dump JSON" )
           execute :: Config -> IO ()
-          execute c = do
-            handleScribe <- mkHandleScribe ColorIfTerminal stdout InfoS V0
+          execute c@Config{..} = do
+            handleScribe <- mkHandleScribe ColorIfTerminal stdout (toLogSeverity logLevel) V0
             let mkLogEnv = registerScribe "stdout" handleScribe defaultScribeSettings =<< initLogEnv "wikidata" "production"
 
             bracket mkLogEnv closeScribes $ \le -> do
@@ -119,15 +126,15 @@ main = execute =<< execParser opts where
           pipeline c = runConduit $
                     (fromInput c) .|
                     toWikiRecord .|
+                    logProgress 1000 .|
                     updateRecordsProcessed .|
                     resolvable .|
                     updateRecordsResolved .|
-                    logProgress 1000 .|
                     void (sequenceConduits extractors) .|
                     (required c) .|
                     router [claimRouting c, entityMappingRouting c]
           required Config{..} = CC.filter $ apply (isRequired extractions)
-          resolvable = CC.filter hasWikiRef
+          resolvable = CC.filterM hasWikiRef
 
 
 extractors :: Monad m => [DataStream WikiRecord Routable m]

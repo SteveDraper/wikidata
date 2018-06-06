@@ -35,6 +35,7 @@ dependencies:
 - filepath
 - mtl
 - katip
+- uri-encode
 
 library:
   source-dirs: src

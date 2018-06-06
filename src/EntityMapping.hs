@@ -6,6 +6,7 @@ import Data.Text as T
 import Data.String
 import Control.Lens
 import Conduit
+import Network.URI.Encode
 
 import CoreTypes
 import Format
@@ -16,10 +17,10 @@ data EntityMapping = EntityMapping EntityId WikiRef
 
 formatMapping :: Monad m => Format -> DataStream EntityMapping Text m
 formatMapping FormatRDF = awaitForever convert where
-  convert (EntityMapping eid wid) = yield $ intercalate " " $ [eid ^. entityId, wid ^. wikiRef]
+  convert (EntityMapping eid wid) = yield $ intercalate " " $ [eid ^. entityId, encodeText (wid ^. wikiRef)]
 formatMapping FormatSql = toFields .| toSqlDefault mappingsTable mappingFields where
   toFields = awaitForever convertRecord
   convertRecord (EntityMapping eid wid) = yield $ fieldsFormat eid wid
   mappingsTable = Table "WikiMappings"
   mappingFields = Fields ["entity", "wikiTitle"]
-  fieldsFormat eid wid = FieldValues [eid ^. entityId, wid ^. wikiRef]
+  fieldsFormat eid wid = FieldValues [eid ^. entityId, encodeText (wid ^. wikiRef)]
