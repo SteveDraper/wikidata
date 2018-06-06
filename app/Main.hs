@@ -134,7 +134,8 @@ main = execute =<< execParser opts where
                     (required c) .|
                     router [claimRouting c, entityMappingRouting c]
           required Config{..} = CC.filter $ apply (isRequired extractions)
-          resolvable = CC.filterM hasWikiRef
+          resolvable = CC.filterM refOrSubclass where
+            refOrSubclass = \w -> if hasSubclass w then return True else hasWikiRef w
 
 
 extractors :: Monad m => [DataStream WikiRecord Routable m]

@@ -12,3 +12,4 @@ data WikiRecord = WikiRecord {
 
 toWikiRecord :: Monad m => DataStream Value WikiRecord m
 toWikiRecord = mapC WikiRecord
+

@@ -5,6 +5,7 @@ module ClaimExtractor where
 
 import Data.Text
 import Data.Tuple
+import Data.Maybe
 import Data.Aeson
 import Control.Lens
 import Control.Lens.Traversal
@@ -40,3 +41,6 @@ extractClaims (claimsObj, e_id) = claims where
       related = cp ^? key "datavalue" . key "value" . key "id" . _String
       toClaim target = Claim e_id (RelId rel) (EntityId target)
 
+
+hasSubclass :: WikiRecord -> Bool
+hasSubclass WikiRecord{..} = isJust $ body ^? key "claims" . key "P279"
