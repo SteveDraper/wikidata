@@ -14,6 +14,7 @@ data Config = Config {
   outdir :: String,
   claimsFile :: OutputFile,
   entityMappingsFile :: OutputFile,
+  labelsFile :: OutputFile,
   extractions :: ExtractionSet,
   compressFlag :: Compress,
   format :: Format,

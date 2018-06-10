@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 227abd4d17394555e21a65e8a0441ccc9e3d40e887c2d9acd84a3a6b8b9c30fb
+-- hash: 86547f53b887d5c1ae7ad7d4ef82c97d30e52a65a02a8d0869795ed0a0bc413a
 
 name:           wikidata
 version:        0.1.0.0
@@ -60,6 +60,8 @@ library
       Filter
       Format
       JsonStream
+      Label
+      LabelExtractor
       Logging
       Progress
       Routable

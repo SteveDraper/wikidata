@@ -5,7 +5,7 @@ import Data.Foldable
 import Data.Monoid
 import Data.String
 
-data Extraction = ExtractClaims | ExtractEntities deriving (Eq, Ord, Enum, Bounded, Show)
+data Extraction = ExtractClaims | ExtractEntities | ExtractLabels deriving (Eq, Ord, Enum, Bounded, Show)
 
 data ExtractionSet = ExtractionSet (Set Extraction) deriving (Show)
 
@@ -22,6 +22,7 @@ extraction :: String -> ExtractionSet
 extraction s = ExtractionSet $ foldMap toExtraction s where
   toExtraction 'c' = singleton ExtractClaims
   toExtraction 'e' = singleton ExtractEntities
+  toExtraction 'l' = singleton ExtractLabels
   toExtraction _ = mempty
 
 containsExtraction :: Extraction -> ExtractionSet -> Bool

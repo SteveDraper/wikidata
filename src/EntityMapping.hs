@@ -13,7 +13,7 @@ import Format
 import DataStream
 import Sql
 
-data EntityMapping = EntityMapping EntityId WikiRef
+data EntityMapping = EntityMapping EntityId WikiRef deriving Show
 
 formatMapping :: Monad m => Format -> DataStream EntityMapping Text m
 formatMapping FormatRDF = awaitForever convert where

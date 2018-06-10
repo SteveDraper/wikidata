@@ -27,6 +27,8 @@ import Claim
 import ClaimExtractor
 import EntityMapping
 import EntityMappingExtractor
+import Label
+import LabelExtractor
 import Routable
 import Routing
 import DataStream
@@ -83,6 +85,12 @@ config = Config
             help "Filename for the extracted entity mappings (defaults to 'entityMappings.rdf')"
           )
       <*> option str
+          ( long "labelsDest" <>
+            (value $ OutputFile $ "labels.rdf") <>
+            metavar "OUTPUT_FILE" <>
+            help "Filename for the extracted labels (defaults to 'labels.rdf')"
+          )
+      <*> option str
           ( long "include" <>
             short 'i' <>
             value allExtractions <>
@@ -136,14 +144,18 @@ main = execute =<< execParser opts where
                     updateRecordsResolved .|
                     void (sequenceConduits extractors) .|
                     (required c) .|
-                    if noOutput then nulC else (router [claimRouting c, entityMappingRouting c])
+                    logExtracted .|
+                    if noOutput then nulC else (router [claimRouting c, entityMappingRouting c, labelRouting c])
           required Config{..} = CC.filter $ apply (isRequired extractions)
           resolvable = CC.filterM refOrSubclass where
             refOrSubclass = \w -> if hasSubclass w then return True else hasWikiRef w
-
+          logExtracted = mapMC logAndYield where
+            logAndYield r = do
+              logFM DebugS $ logStr $ show r
+              return r
 
 extractors :: Monad m => [DataStream WikiRecord Routable m]
-extractors = [claimExtractor, entityMappingExtractor]
+extractors = [claimExtractor, entityMappingExtractor, labelExtractor]
 
 claimRouting :: (PrimMonad m, MonadResource m, MonadThrow m) => Config -> Route m
 claimRouting Config{..} = Route (toText .| outputConverter compressFlag .| simpleWriter output) $ apply $ isClaim <> (included claimFilter) where
@@ -159,6 +171,12 @@ entityMappingRouting Config{..} = Route (toText .| outputConverter compressFlag 
   toText = mapC getMapping .| filterJust .| formatMapping format
   getMapping r = r ^? toEntityMapping
   output = makeOutput outdir compressFlag format entityMappingsFile
+
+labelRouting :: (PrimMonad m, MonadResource m, MonadThrow m) => Config -> Route m
+labelRouting Config{..} = Route (toText .| outputConverter compressFlag .| simpleWriter output) $ apply $ isLabel where
+  toText = mapC getLabel .| filterJust .| formatLabel format
+  getLabel r = r ^? toLabel
+  output = makeOutput outdir compressFlag format labelsFile
 
 outputConverter :: (PrimMonad m, MonadThrow m) => Compress -> DataStream Text ByteString m
 outputConverter c = maybeCompress c linesToBytes

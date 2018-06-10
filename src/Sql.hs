@@ -56,4 +56,5 @@ sqlValueList :: (Text -> Text) -> [Text] -> Text
 sqlValueList escaping l = "(" <> (intercalate "," (fmap escaping l)) <> ")" where
 
 quote :: Text -> Text
-quote t = "'" <> replace "'" "''" t <> "'"
+quote t = "'" <> escape t <> "'" where
+  escape = (replace "'" "''") . replace "\\" "\\\\"
