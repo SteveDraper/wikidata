@@ -8,7 +8,8 @@ wikidata - a processor for wikidata dump JSON
 Usage: wikidata-exe [-f|--file INPUT_FILE] [-r|--records MAX_RECORDS]
                     [--claimFilter CLAIM_FILTER] [-o|--outdir OUTPUT_DIRECTORY]
                     [--claimsDest OUTPUT_FILE] [--mappingsDest OUTPUT_FILE]
-                    [-i|--include INCLUDE_FLAGS] [--noCompress] [--sql]
+                    [--labelsDest OUTPUT_FILE] [-i|--include INCLUDE_FLAGS]
+                    [--noCompress] [--sql] [--logLevel LOG_LEVEL] [--noOutput]
   Process Wikidata dump JSON
 
 Available options:
@@ -25,12 +26,16 @@ Available options:
   --mappingsDest OUTPUT_FILE
                            Filename for the extracted entity mappings (defaults
                            to 'entityMappings.rdf')
+  --labelsDest OUTPUT_FILE Filename for the extracted labels (defaults to
+                           'labels.rdf')
   -i,--include INCLUDE_FLAGS
                            What to include as a string of flag characters. 'c'
                            == claims, 'e' == entities. If absent all known
                            extractions will be performed
   --noCompress             Do not compress
   --sql                    Format for insertion into SQL tables (default off)
+  --logLevel LOG_LEVEL     Logging level (Debug | Info | None). Defaults to Info
+  --noOutput               Supress writing output files (default off)
   -h,--help                Show this help text
 ```
 
@@ -38,6 +43,7 @@ Outputs the following, each to its own output file:
 
 * WikiData id -> English Wikipedia Title
 * Claims as triples of Wikidata id -> Relationship id -> Wikidata id
+* WikiData id -> English label
 
 Only entities that are resolvable to English wikipedia are included.
 
@@ -65,10 +71,13 @@ Example creation statement:
 CREATE TABLE WikiMappings (
   entity VARCHAR(255) NOT NULL,
   wikiTitle VARCHAR(255) NOT NULL,
-  PRIMARY KEY (entity)
+  PRIMARY KEY (entity),
+  KEY (wikiTitle)
 )
 
 ```
+
+### Claims (relationships)
 
 Table name: `Claims` (utf-encoding)
 
@@ -87,6 +96,26 @@ CREATE TABLE Claims (
   target VARCHAR(255) NOT NULL,
   PRIMARY KEY (relation, entity),
   KEY (entity)
+)
+
+```
+
+### Labels
+
+Table name: `Labels` (utf-encoding)
+
+Fields:
+
+	`entity` (VARCHAR(255))
+	`label` (VARCHAR(255))
+
+Example creation statement:
+
+```
+CREATE TABLE Labels (
+  entity VARCHAR(255) NOT NULL,
+  label VARCHAR(255) NOT NULL,
+  PRIMARY KEY (entity)
 )
 
 ```
